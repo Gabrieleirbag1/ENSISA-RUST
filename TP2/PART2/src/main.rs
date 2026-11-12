@@ -114,7 +114,7 @@ impl TicTacToe {
             println!("{}", "*".repeat(20));
             self.board.printboard();
 
-            print!("Enter your move:");
+            print!("Enter your move: ");
             io::stdout().flush().unwrap();
 
             let mut player_move = String::new();
