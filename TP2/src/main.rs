@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::io::{self, Write};
+use std::process::Command;
 
 const CHAR: [&str; 3] = [" ", "X", "O"];
 const PLAYERS: [&str; 2] = ["O", "X"];
@@ -42,7 +43,9 @@ fn check_victory(board: &[[usize; 3]; 3]) -> bool {
 }
 
 fn clear_screen() {
-    print!("\x1B[2J\x1B[1;1H");
+    Command::new("clear")
+        .status()
+        .expect("Failed to clear screen");    
 }
 
 fn main() {
