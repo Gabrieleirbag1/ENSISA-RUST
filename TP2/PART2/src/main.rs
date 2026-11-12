@@ -76,18 +76,31 @@ impl TicTacToe {
     fn check_victory(&self) -> bool {
         let positions = &self.board.positions;
         for i in 0..3 {
-            if positions[i][0] != 0 && positions[i][0] == positions[i][1] && positions[i][1] == positions[i][2]
-                || positions[0][i] != 0 && positions[0][i] == positions[1][i] && positions[1][i] == positions[2][i]
+            if positions[i][0] != 0
+                && positions[i][0] == positions[i][1]
+                && positions[i][1] == positions[i][2]
+                || positions[0][i] != 0
+                    && positions[0][i] == positions[1][i]
+                    && positions[1][i] == positions[2][i]
             {
                 return true;
             }
         }
-        if positions[0][0] != 0 && positions[1][1] == positions[0][0] && positions[2][2] == positions[1][1]
-            || positions[0][2] != 0 && positions[1][1] == positions[0][2] && positions[2][0] == positions[1][1]
+        if positions[0][0] != 0
+            && positions[1][1] == positions[0][0]
+            && positions[2][2] == positions[1][1]
+            || positions[0][2] != 0
+                && positions[1][1] == positions[0][2]
+                && positions[2][0] == positions[1][1]
         {
             return true;
         }
         false
+    }
+
+    fn reset_game(&mut self) {
+        self.board.positions = [[0; 3]; 3];
+        self.turn = 1;
     }
 
     fn run(&mut self) {
@@ -143,5 +156,30 @@ impl TicTacToe {
 
 fn main() {
     let mut game = TicTacToe::new();
-    game.run();
+
+    loop {
+        game.run();
+
+        let restart = loop {
+            print!("Restart the game ? (Y/n): ");
+            io::stdout().flush().unwrap();
+
+            let mut answer = String::new();
+            io::stdin()
+                .read_line(&mut answer)
+                .expect("Failed to read line");
+
+            match answer.trim().to_lowercase().as_str() {
+                "" | "y" | "yes" => break true, // empty = default "Y"
+                "n" | "no" => break false,
+                _ => game.board.clear_screen(),
+            }
+        };
+
+        if !restart {
+            break;
+        }
+        game.reset_game();
+        game.board.clear_screen();
+    }
 }
