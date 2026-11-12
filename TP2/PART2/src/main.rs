@@ -170,7 +170,7 @@ fn main() {
                 .expect("Failed to read line");
 
             match answer.trim().to_lowercase().as_str() {
-                "" | "y" | "yes" => break true, // empty = default "Y"
+                "" | "y" | "yes" => break true,
                 "n" | "no" => break false,
                 _ => game.board.clear_screen(),
             }
