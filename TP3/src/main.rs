@@ -123,7 +123,17 @@ impl Board {
 
     fn play(&mut self, row: usize, col: usize, player: Player) -> Result<(), MoveError> {
         // TODO 3 : verifier les limites et l’occupation avant de placer le symbole.
-        todo!("placer un coup")
+        if row >= 3 || col >= 3 {
+            return Err(MoveError::InvalidPosition);
+        }
+        else if self.grid[row][col] == Cell::Occupied(player) {
+            return Err(MoveError::Occupied);
+        }
+        else if self.grid[row][col] == Cell::Empty {
+            self.grid[row][col] = Cell::Occupied(player);
+            return Ok(());
+        }
+        Err(MoveError::InvalidPosition)
     }
 
     fn matching_player(a: Cell, b: Cell, c: Cell) -> Option<Player> {
