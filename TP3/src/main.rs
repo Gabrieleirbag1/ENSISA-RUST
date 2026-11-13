@@ -11,12 +11,20 @@ enum Player {
 impl Player {
     fn symbol(self) -> char {
         // TODO 1 : renvoyer le symbole de ce joueur avec match.
-        todo!("symbole du joueur")
+        match self {
+            Player::X => 'X',
+            Player::O => 'O',
+        }
+        // todo!("symbole du joueur")
     }
 
     fn other(self) -> Player {
         // TODO 1 : retourner l’autre joueur avec match.
-        todo!("joueur suivant")
+        match self {
+            Player::X => Player::O,
+            Player::O => Player::X,
+        }
+        // todo!("joueur suivant")
     }
 }
 
@@ -29,7 +37,11 @@ enum Cell {
 impl Cell {
     fn symbol(self) -> char {
         // TODO 1 : Empty -> espace ; Occupied(player) -> symbole du joueur.
-        todo!("symbole de la case")
+        match self {
+            Cell::Empty => ' ',
+            Cell::Occupied(player) => player.symbol(),
+        }
+        // todo!("symbole de la case")
     }
 }
 

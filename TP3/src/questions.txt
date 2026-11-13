@@ -1,0 +1,8 @@
+Pourquoi Cell::Occupied(Player) est-il plus expressif que 1 ou 2?
+-> Il est plus expressif car il appelle la méthode symbol du type Player pour renovyer le vrai symbole du joueur.
+
+À quoi servent les dérivations Copy et PartialEq dans ce programme ?
+-> Copy permet de copier les valeurs de Player et Cell sans avoir à utiliser la méthode clone. 
+-> PartialEq permet de comparer les valeurs de Player et Cell avec l'opérateur ==.
+
+############################"
