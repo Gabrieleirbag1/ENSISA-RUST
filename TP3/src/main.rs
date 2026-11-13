@@ -70,7 +70,24 @@ impl MoveError {
 // Convertit une saisie du type "A1" en indices (ligne, colonne).
 fn parse_move(input: &str) -> Result<(usize, usize), MoveError> {
     // TODO 2 : analyser la saisie et renvoyer Ok((ligne, colonne)) ou Err(...).
-    todo!("analyse de la saisie")
+    let input = input.trim();
+    
+    if input.len() != 2 {
+        return Err(MoveError::InvalidPosition);
+    }
+    let row = match input.chars().next().unwrap().to_ascii_uppercase() {
+        'A' => 0,
+        'B' => 1,
+        'C' => 2,
+        _ => return Err(MoveError::InvalidPosition),
+    };
+    let col = match input.chars().next().unwrap() {
+        '1' => 0,
+        '2' => 1,
+        '3' => 2,
+        _ => return Err(MoveError::InvalidPosition),
+    };
+    Ok((row, col))
 }
 
 struct Board {
