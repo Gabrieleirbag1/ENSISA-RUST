@@ -81,7 +81,7 @@ fn parse_move(input: &str) -> Result<(usize, usize), MoveError> {
         'C' => 2,
         _ => return Err(MoveError::InvalidPosition),
     };
-    let col = match input.chars().next().unwrap() {
+    let col = match input.chars().nth(1).unwrap() {
         '1' => 0,
         '2' => 1,
         '3' => 2,
@@ -126,7 +126,7 @@ impl Board {
         if row >= 3 || col >= 3 {
             return Err(MoveError::InvalidPosition);
         }
-        else if self.grid[row][col] == Cell::Occupied(player) {
+        else if self.grid[row][col] != Cell::Empty {
             return Err(MoveError::Occupied);
         }
         else if self.grid[row][col] == Cell::Empty {
@@ -138,17 +138,56 @@ impl Board {
 
     fn matching_player(a: Cell, b: Cell, c: Cell) -> Option<Player> {
         // TODO 4 : Some(player) si les trois cases contiennent le même joueur.
-        todo!("trois cases alignees")
+        if a == Cell::Occupied(Player::X) && b == Cell::Occupied(Player::X) && c == Cell::Occupied(Player::X) {
+            return Some(Player::X);
+        }
+        else if a == Cell::Occupied(Player::O) && b == Cell::Occupied(Player::O) && c == Cell::Occupied(Player::O) {
+            return Some(Player::O);
+        }
+        None
     }
 
     fn winner(&self) -> Option<Player> {
         // TODO 4 : tester les 3 lignes, les 3 colonnes et les 2 diagonales.
-        todo!("rechercher un vainqueur")
+        if let Some(player) = Board::matching_player(self.grid[0][0], self.grid[0][1], self.grid[0][2]) {
+            return Some(player);
+        }
+        if let Some(player) = Board::matching_player(self.grid[1][0], self.grid[1][1], self.grid[1][2]) {
+            return Some(player);
+        }
+        if let Some(player) = Board::matching_player(self.grid[2][0], self.grid[2][1], self.grid[2][2]) {
+            return Some(player);
+        }
+
+        if let Some(player) = Board::matching_player(self.grid[0][0], self.grid[1][0], self.grid[2][0]) {
+            return Some(player);
+        }
+        if let Some(player) = Board::matching_player(self.grid[0][1], self.grid[1][1], self.grid[2][1]) {
+            return Some(player);
+        }
+        if let Some(player) = Board::matching_player(self.grid[0][2], self.grid[1][2], self.grid[2][2]) {
+            return Some(player);
+        }
+
+        if let Some(player) = Board::matching_player(self.grid[0][0], self.grid[1][1], self.grid[2][2]) {
+            return Some(player);
+        }
+        if let Some(player) = Board::matching_player(self.grid[0][2], self.grid[1][1], self.grid[2][0]) {
+            return Some(player);
+        }
+        None
     }
 
     fn is_full(&self) -> bool {
         // TODO 4 : true si aucune case n’est Empty.
-        todo!("plateau complet")
+        for row in &self.grid {
+            for cell in row {
+                if *cell == Cell::Empty {
+                    return false;
+                }
+            }
+        }
+        true
     }
 }
 
