@@ -215,7 +215,13 @@ impl TicTacToe {
     fn state(&self) -> GameState {
         // TODO 5 : Won si vainqueur, sinon Draw si plateau plein,
         // sinon InProgress. Attention a l’ordre des tests.
-        todo!("etat de la partie")
+        if let Some(player) = self.board.winner() {
+            return GameState::Won(player);
+        }
+        if self.board.is_full() {
+            return GameState::Draw;
+        }
+        GameState::InProgress
     }
 
     fn launch(&mut self) -> io::Result<()> {
