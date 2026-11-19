@@ -219,7 +219,6 @@ impl Strategy for HumanStrategy {
         // Question : la méthode possède l'argument _board car le trait l'impose
         loop {
             print!("Votre coup (A1-C3) : ");
-            print!("Votre symbole {}", player.symbol());
             io::stdout().flush()?;
             let mut input = String::new();
             if io::stdin().read_line(&mut input)? == 0 {
@@ -289,6 +288,49 @@ impl Strategy for RandomStrategy {
 }
 
 // TODO 5 : creer ici SmartStrategy et son impl Strategy.
+struct SmartStrategy;
+
+impl Strategy for SmartStrategy {
+    fn choose_move(&mut self, board: &Board, player: Player) -> io::Result<Option<(usize, usize)>> {
+        // Gagner, bloquer l'adversaire, jouer au centre, puis prendre la première case libre.
+        let available_moves = board.available_moves();
+
+        if available_moves.is_empty() {
+            return Ok(None);
+        }
+
+        // 1. Jouer un coup qui fait gagner directement.
+        for &(row, col) in &available_moves {
+            let mut simulation = Board { grid: board.grid };
+            simulation.play(row, col, player).unwrap();
+            if simulation.winner() == Some(player) {
+                return Ok(Some((row, col)));
+            }
+        }
+
+        // 2. Bloquer un coup gagnant de l'adversaire.
+        let opponent = player.other();
+        for &(row, col) in &available_moves {
+            let mut simulation = Board { grid: board.grid };
+            simulation.play(row, col, opponent).unwrap();
+            if simulation.winner() == Some(opponent) {
+                return Ok(Some((row, col)));
+            }
+        }
+
+        // 3. Jouer le centre s'il est libre.
+        if board.grid[1][1] == Cell::Empty {
+            return Ok(Some((1, 1)));
+        }
+
+        // 4. Sinon, jouer la première case libre.
+        Ok(Some(available_moves[0]))
+    }
+
+    fn name(&self) -> &'static str {
+        "Smart"
+    }
+}
 
 struct TicTacToe {
     turn: u8,
@@ -330,11 +372,9 @@ impl TicTacToe {
         let strategy;
         if self.current_player == Player::X {
             strategy = &mut self.strategies[0];
-        }
-        else if self.current_player == Player::O {
+        } else if self.current_player == Player::O {
             strategy = &mut self.strategies[1];
-        }
-        else {
+        } else {
             return Ok(None);
         }
         strategy.choose_move(&self.board, self.current_player)
@@ -410,6 +450,7 @@ fn main() -> io::Result<()> {
     println!("Choisissez un mode de jeu :");
     println!("  1 - Humain contre humain");
     println!("  2 - Humain contre ordinateur aleatoire");
+    println!("  3 - Humain contre ordinateur intelligent");
     print!("Mode [2] : ");
     io::stdout().flush()?;
     let mut input = String::new();
@@ -423,8 +464,14 @@ fn main() -> io::Result<()> {
     // Question: Parce que HumanStrategy et RandomStrategy ont des types différents, alors qu’un tableau Rust impose généralement un seul type pour toutes ses cases mais avec Box dyn du trait Strategy ça marche
     let opponent: Box<dyn Strategy> = match input.trim() {
         "1" => Box::new(HumanStrategy),
+        "3" => Box::new(SmartStrategy),
         "2" | "" => Box::new(RandomStrategy::new()),
-        _ => return Err(io::Error::new(io::ErrorKind::InvalidInput, "Mode de jeu invalide")),
+        _ => {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "Mode de jeu invalide",
+            ));
+        }
     };
     let mut game = TicTacToe::new(Box::new(HumanStrategy), opponent);
 
@@ -557,15 +604,13 @@ mod tests {
         let move_o = game.request_move().unwrap().unwrap();
         assert!(game.board.available_moves().contains(&move_o));
     }
-    /*
-        #[test]
-        fn smart_strategy_wins_or_blocks() {
-            let mut board = Board::new();
-            board.play(0, 0, Player::X).unwrap();
-            board.play(0, 1, Player::X).unwrap();
-            let mut smart = SmartStrategy;
-            assert_eq!(smart.choose_move(&board, Player::X).unwrap(), Some((0, 2)));
-            assert_eq!(smart.choose_move(&board, Player::O).unwrap(), Some((0, 2)));
-        }
-    */
+    #[test]
+    fn smart_strategy_wins_or_blocks() {
+        let mut board = Board::new();
+        board.play(0, 0, Player::X).unwrap();
+        board.play(0, 1, Player::X).unwrap();
+        let mut smart = SmartStrategy;
+        assert_eq!(smart.choose_move(&board, Player::X).unwrap(), Some((0, 2)));
+        assert_eq!(smart.choose_move(&board, Player::O).unwrap(), Some((0, 2)));
+    }
 }
