@@ -1,4 +1,4 @@
-use rand::{rngs::StdRng, RngExt, SeedableRng};
+use rand::{RngExt, SeedableRng, rngs::StdRng};
 use std::io::{self, Write};
 
 // TP4 - Morpion : traits, implementations et Box<dyn Strategy>
@@ -215,7 +215,26 @@ impl Strategy for HumanStrategy {
         // TODO 2 : saisir A1-C3, utiliser parse_move et recommencer si
         // la saisie est incorrecte. Ok(None) en cas d'EOF (read_line = 0).
         // Ne modifiez pas le plateau ici.
-        todo!("strategie humaine")
+        // todo!("strategie humaine")
+        // Question : la méthode possède l'argument _board car le trait l'impose
+        loop {
+            print!("Votre coup (A1-C3) : ");
+            print!("Votre symbole {}", player.symbol());
+            io::stdout().flush()?;
+            let mut input = String::new();
+            if io::stdin().read_line(&mut input)? == 0 {
+                return Ok(None); // Fin de fichier / fermeture de stdin.
+            }
+
+            // Le tour ne change pas apres un coup invalide.
+            let result = parse_move(&input);
+            match result {
+                Err(error) => {
+                    println!("Coup refuse : {}.\n", error.message());
+                }
+                Ok(position) => return Ok(Some(position)), // OK crée la variable position qui est retournée par parse_move
+            }
+        }
     }
 
     fn name(&self) -> &'static str {
