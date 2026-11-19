@@ -272,7 +272,15 @@ impl Strategy for RandomStrategy {
     ) -> io::Result<Option<(usize, usize)>> {
         // TODO 3 : utiliser available_moves() et self.rng.random_range(...)
         // pour choisir une case libre. Renvoyer Ok(None) si aucune case libre.
-        todo!("strategie aleatoire")
+        // todo!("strategie aleatoire")
+        // Question : Pour pouvoir accéder aux méthode de rng il faut avoir mut + & pour conserver et modifier la même instance, board lui ne modifie pas le plateau donc pas besoin
+        let free_moves = board.available_moves();
+        if free_moves.is_empty() {
+            return Ok(None);
+        }
+
+        let index = self.rng.random_range(0..free_moves.len());
+        Ok(Some(free_moves[index]))
     }
 
     fn name(&self) -> &'static str {
