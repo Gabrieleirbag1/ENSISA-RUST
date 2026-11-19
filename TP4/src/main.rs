@@ -1,8 +1,7 @@
-use std::io::{self, Write};
 use rand::{rngs::StdRng, RngExt, SeedableRng};
+use std::io::{self, Write};
 
 // TP4 - Morpion : traits, implementations et Box<dyn Strategy>
-
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum Player {
@@ -136,28 +135,31 @@ impl Board {
     fn matching_player(a: Cell, b: Cell, c: Cell) -> Option<Player> {
         match (a, b, c) {
             (Cell::Occupied(p1), Cell::Occupied(p2), Cell::Occupied(p3))
-                if p1 == p2 && p2 == p3 => Some(p1),
+                if p1 == p2 && p2 == p3 =>
+            {
+                Some(p1)
+            }
             _ => None,
         }
     }
 
     fn winner(&self) -> Option<Player> {
         for i in 0..3 {
-            if let Some(player) = Self::matching_player(
-                self.grid[i][0], self.grid[i][1], self.grid[i][2],
-            ) {
+            if let Some(player) =
+                Self::matching_player(self.grid[i][0], self.grid[i][1], self.grid[i][2])
+            {
                 return Some(player);
             }
-            if let Some(player) = Self::matching_player(
-                self.grid[0][i], self.grid[1][i], self.grid[2][i],
-            ) {
+            if let Some(player) =
+                Self::matching_player(self.grid[0][i], self.grid[1][i], self.grid[2][i])
+            {
                 return Some(player);
             }
         }
 
-        if let Some(player) = Self::matching_player(
-            self.grid[0][0], self.grid[1][1], self.grid[2][2],
-        ) {
+        if let Some(player) =
+            Self::matching_player(self.grid[0][0], self.grid[1][1], self.grid[2][2])
+        {
             return Some(player);
         }
         Self::matching_player(self.grid[0][2], self.grid[1][1], self.grid[2][0])
@@ -177,7 +179,17 @@ impl Board {
     // TP4 / Exercice 1 : lister les coups possibles sans modifier le plateau.
     fn available_moves(&self) -> Vec<(usize, usize)> {
         // TODO 1 : renvoyer les coordonnees de toutes les cases vides.
-        todo!("lister les coups possibles")
+        // todo!("lister les coups possibles")
+        let mut moves = Vec::new();
+        for row in 0..3 {
+            for col in 0..3 {
+                if self.grid[row][col] == Cell::Empty {
+                    moves.push((row, col));
+                }
+            }
+        }
+
+        moves
     }
 }
 
@@ -185,8 +197,7 @@ impl Board {
 // Ok(None) signifie : fin de la saisie (EOF) ou aucun coup possible.
 // Un Err represente ici uniquement une erreur d'entree-sortie.
 trait Strategy {
-    fn choose_move(&mut self, board: &Board, player: Player)
-        -> io::Result<Option<(usize, usize)>>;
+    fn choose_move(&mut self, board: &Board, player: Player) -> io::Result<Option<(usize, usize)>>;
 
     fn name(&self) -> &'static str {
         "Strategie"
@@ -196,9 +207,11 @@ trait Strategy {
 struct HumanStrategy;
 
 impl Strategy for HumanStrategy {
-    fn choose_move(&mut self, _board: &Board, player: Player)
-        -> io::Result<Option<(usize, usize)>>
-    {
+    fn choose_move(
+        &mut self,
+        _board: &Board,
+        player: Player,
+    ) -> io::Result<Option<(usize, usize)>> {
         // TODO 2 : saisir A1-C3, utiliser parse_move et recommencer si
         // la saisie est incorrecte. Ok(None) en cas d'EOF (read_line = 0).
         // Ne modifiez pas le plateau ici.
@@ -219,19 +232,25 @@ struct RandomStrategy {
 impl RandomStrategy {
     fn new() -> Self {
         // Graine aleatoire : les parties varient a chaque execution.
-        Self { rng: rand::make_rng() }
+        Self {
+            rng: rand::make_rng(),
+        }
     }
 
     fn with_seed(seed: u64) -> Self {
         // Graine fixe : utile pour les tests unitaires.
-        Self { rng: StdRng::seed_from_u64(seed) }
+        Self {
+            rng: StdRng::seed_from_u64(seed),
+        }
     }
 }
 
 impl Strategy for RandomStrategy {
-    fn choose_move(&mut self, board: &Board, _player: Player)
-        -> io::Result<Option<(usize, usize)>>
-    {
+    fn choose_move(
+        &mut self,
+        board: &Board,
+        _player: Player,
+    ) -> io::Result<Option<(usize, usize)>> {
         // TODO 3 : utiliser available_moves() et self.rng.random_range(...)
         // pour choisir une case libre. Renvoyer Ok(None) si aucune case libre.
         todo!("strategie aleatoire")
@@ -243,7 +262,6 @@ impl Strategy for RandomStrategy {
 }
 
 // TODO 5 : creer ici SmartStrategy et son impl Strategy.
-
 
 struct TicTacToe {
     turn: u8,
@@ -290,7 +308,11 @@ impl TicTacToe {
             // Une partie.
             loop {
                 println!("{}", "*".repeat(20));
-                let index = if self.current_player == Player::X { 0 } else { 1 };
+                let index = if self.current_player == Player::X {
+                    0
+                } else {
+                    1
+                };
                 println!(
                     "Tour {} : joueur {} ({})",
                     self.turn,
@@ -491,15 +513,15 @@ mod tests {
         let move_o = game.request_move().unwrap().unwrap();
         assert!(game.board.available_moves().contains(&move_o));
     }
-/*
-    #[test]
-    fn smart_strategy_wins_or_blocks() {
-        let mut board = Board::new();
-        board.play(0, 0, Player::X).unwrap();
-        board.play(0, 1, Player::X).unwrap();
-        let mut smart = SmartStrategy;
-        assert_eq!(smart.choose_move(&board, Player::X).unwrap(), Some((0, 2)));
-        assert_eq!(smart.choose_move(&board, Player::O).unwrap(), Some((0, 2)));
-    }
-*/
+    /*
+        #[test]
+        fn smart_strategy_wins_or_blocks() {
+            let mut board = Board::new();
+            board.play(0, 0, Player::X).unwrap();
+            board.play(0, 1, Player::X).unwrap();
+            let mut smart = SmartStrategy;
+            assert_eq!(smart.choose_move(&board, Player::X).unwrap(), Some((0, 2)));
+            assert_eq!(smart.choose_move(&board, Player::O).unwrap(), Some((0, 2)));
+        }
+    */
 }
