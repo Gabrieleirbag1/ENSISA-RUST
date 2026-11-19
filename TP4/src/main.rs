@@ -327,7 +327,17 @@ impl TicTacToe {
     fn request_move(&mut self) -> io::Result<Option<(usize, usize)>> {
         // TODO 4 : choisir strategies[0] si X, strategies[1] si O,
         // puis appeler choose_move(&self.board, self.current_player).
-        todo!("appeler le bon objet trait")
+        let strategy;
+        if self.current_player == Player::X {
+            strategy = &mut self.strategies[0];
+        }
+        else if self.current_player == Player::O {
+            strategy = &mut self.strategies[1];
+        }
+        else {
+            return Ok(None);
+        }
+        strategy.choose_move(&self.board, self.current_player)
     }
 
     fn launch(&mut self) -> io::Result<()> {
@@ -409,8 +419,15 @@ fn main() -> io::Result<()> {
 
     // TODO 4 : creer un Box<dyn Strategy> a partir du mode choisi.
     // Pour le mode 1 : HumanStrategy ; pour le mode 2 : RandomStrategy::new().
-    let opponent: Box<dyn Strategy> = todo!("choisir le type d'adversaire");
+    // Question: Box alloue une donnée pendant la compilation et dyn désigne un trait dynamique
+    // Question: Parce que HumanStrategy et RandomStrategy ont des types différents, alors qu’un tableau Rust impose généralement un seul type pour toutes ses cases mais avec Box dyn du trait Strategy ça marche
+    let opponent: Box<dyn Strategy> = match input.trim() {
+        "1" => Box::new(HumanStrategy),
+        "2" | "" => Box::new(RandomStrategy::new()),
+        _ => return Err(io::Error::new(io::ErrorKind::InvalidInput, "Mode de jeu invalide")),
+    };
     let mut game = TicTacToe::new(Box::new(HumanStrategy), opponent);
+
     game.launch()
 }
 
